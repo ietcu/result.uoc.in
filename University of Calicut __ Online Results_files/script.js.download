@@ -1,0 +1,193 @@
+function list_links(menu, start) {
+    $.ajax({
+        url: 'getlist.php',
+        data: {"cour_id":menu, "start":start},
+        type: "POST",
+        success: function(data, textStatus, jqXHR) {
+            $("#az").html(data);
+            $('#sidenav a').removeClass('active');
+            $('#'+menu).addClass('active');
+            
+            $("#result_div").hide();
+            $("#links_table").show();
+
+            $("HTML, BODY").animate({ scrollTop: 0 }, 1000); //$("#courses").offset().top
+            
+            $(".am").click(function() {
+                $('#result_title').html($(this).html());
+            });
+
+            $('.open_nav').click(function() {
+                if ($('.w125').length > 0)
+                    closeNav();
+                else
+                    openNav();
+            });
+            if ($('#'+menu).length)
+                var course = $('#'+menu).html();
+            else var course = 'ALL COURSES';
+
+            $('.menu_display').html(course);
+            $('#links_table').DataTable({
+                "pageLength" : 25,
+                "order": [[ 1, "desc" ], [0, "asc"]],
+            });
+        }, 
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert('An error has occurred. Please try again later.');
+        }
+    });
+}
+
+$(document).ready(function(){
+    var loading = function() {
+        $('#loading').modal('show');
+        $(document).keyup(function(e) {
+            if (e.which === 27) $('#loading').modal('hide');
+        });
+    };
+    $(document).ajaxStart(loading);
+    $(document).ajaxStop(function(){$('#loading').modal('hide');});
+    
+    var str = location.href.toLowerCase();
+    $(".ax").click(function() {
+        list_links($(this).attr('id'));
+        closeNav();
+    });
+
+    // Page Load
+    list_links(window.location.href.split('#')[1]);
+    setTimeout(function(){ closeNav();}, 2000);
+    
+    // $('html').click(function(e) {                    
+    //    if(!$(e.target).hasClass('sidenav') && !($(".w125").length > 0 && $(e.target).hasClass('open_nav'))) {
+    //         console.log($(e.target))
+    //         $(".w125").removeClass('w125');
+    //    }
+
+    // });
+});
+
+
+function Checkregno() {
+    var regno = $.trim($('#regno').val());
+    //var captcha = $.trim($('#captchacode').val());
+    var id = $.trim($('#result_id').val());
+    var token = $("#g-recaptcha-response").val();
+    if(regno.length != 10)
+    {
+        show_inline_alert("Please provide valid Register Number");
+        return false;
+    // } else if(captcha == '') {
+    //     show_inline_alert("Security code cannot be blank");
+    //     //$('#captchacode').focus();
+    //     return false;
+    } else if (id == '') {
+        show_alert("Please refresh the page and try again.");
+    } else {
+        $('#result_div').hide();
+        $('#loading').modal('show');
+        $.post('check.php', {
+            "regno":regno, 
+            /*"captcha":captcha*/
+            'token':token, 
+            "rid":id
+        }, function(data, textStatus, jqXHR) {
+            $('#loading').modal('hide');
+            $('#result_div').show();
+            var res = $.parseJSON(data);
+            if (res['status'] == '1') {
+                window.location.reload();
+            } else if (res['status'] == '0') {
+                show_inline_alert(res['message']);
+                //$('#captchacode').focus();
+            } else if (res['status'] == '2'){
+                $('#regno').val('');
+                $('#dup_content').html(res['message']);
+		if(res['result_type'] == 'RV'){
+			show_alert(res['message'], 'Revaluation Result | ' + regno.toUpperCase());
+		}
+		else if(res['result_type'] == 'SC'){
+			show_alert(res['message'], 'Scrutiny Result | ' + regno.toUpperCase());
+		}
+		else {
+			show_alert(res['message'], 'Examination Result | ' + regno.toUpperCase());
+		}
+            } else if (res['status'] == '3') {
+                $('#regno').val('');
+                var a = document.createElement('a');
+                a.href = res['message'];
+                a.setAttribute('target', '_blank');
+                document.body.appendChild(a);
+                a.click();
+            }
+            grecaptcha.reset();
+            //document.getElementById('captcha').src='./captcha/captcha.php?'+Math.random();
+            //$('#captchacode').val('');
+        });
+    }
+}
+
+function load_page(link) {
+    var start = $(link).attr('start');
+    var menu = $(link).attr('menu');
+    list_links(menu, start);
+}
+
+function openNav() {
+    $("#sidenav").addClass('w125');
+    $('#menu_close').fadeIn();
+}
+
+function closeNav() {
+    $("#sidenav").removeClass('w125');
+    $('#menu_close').fadeOut();
+}
+
+function show_alert(msg, title) {
+    if (title === undefined) {
+        title = 'Error';
+        $('#alert_body').addClass('alert alert-danger');
+    } else {
+        $('#alert_body').removeClass('alert alert-danger');
+    }
+    clear_inline_error();
+    $('#alert_title').html(title);
+    $('#alert_body').html(msg);
+    $('#alert').modal();
+}
+
+function show_inline_alert(msg, title) {
+    if (title === undefined) {
+        title = 'Error';
+        $('#inline_alert').removeClass('alert-success').addClass('alert-danger');
+    } else {
+        $('#inline_alert').removeClass('alert-danger').addClass('alert-success');
+    }
+    $('#inline_alert').html(msg);
+    $('#inline_alert').fadeIn();
+    $('#inline_alert').focus();
+}
+
+function show_form(a) {
+    var id = $(a).attr('id');
+    var link = $(this).attr('href');
+    $("#result_id").val(id);
+    $("#result_div").modal("show");
+}
+
+function clear_inline_error() {
+    $('#inline_alert').fadeOut();
+}
+
+function print_result() {
+     //$('#main_content').hide();
+     //$('#dup').show();
+     //window.resizeTo(720, 1018);
+     //oldwidth = $('body').css('width');
+     //$('body').css('width', '720px');
+     window.print();
+     //$('body').css('width', oldwidth);
+     //$('#main_content').show();
+     //$('#dup').hide();
+}

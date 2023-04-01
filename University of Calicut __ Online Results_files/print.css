@@ -1,0 +1,81 @@
+html {
+	margin:0 !important;
+	padding: 0 !important;
+	width:100% !important;
+	min-width:100% !important;
+	/*border:1px solid blue;*/
+}
+
+@page {
+    margin: 4mm;
+    size: A4 !important;
+    width: 21cm !important;
+    /*border:1px solid green;*/
+}
+
+body {
+	font-size: 13px;
+	text-align:left;
+	padding: 10px !important;
+	margin:0 !important;
+	width:100% !important;
+	min-width:100% !important;
+	/*border:1px solid red;*/
+}
+
+table.table, #toprow, #toprow label{
+	display:inline-block !important;
+	overflow:visible !important;
+	margin:auto !important;
+	padding:5px 0 !important;
+	width:100% !important;
+	min-width:100% !important;
+	page-break-inside:auto !important;
+}
+
+table.table {
+	margin:10px 0 !important;
+	border-bottom: 1px solid #999;
+	display: inline-table !important;
+	width: 21cm !important;
+}
+
+table.table th {
+	word-wrap: break-word !important;
+	color:#010 !important;
+}
+
+table td, table th {
+	padding:2px !important;
+}
+
+table td{
+	font-weight:normal !important;
+}
+
+p.totals {
+	font-size:15px !important;
+}
+
+.toprow label.right {
+	font-weight:bold !important;
+}
+
+.modal-backdrop {
+	background-color:#FFF !important;
+	opacity:0 !important;
+}
+
+.result_top, .toprow {
+	width:100% !important;
+	min-width:100% !important;
+}
+
+#dup_header {margin-top:50px;width:100%;}
+#dup_content {margin-top:30px;width:100%;}
+#dup {width:100%;}
+#dup_bg {left:17%;}
+#main_content {display: none;}
+#dup {display: block !important;}
+.modal-backdrop {display: none;}
+#disc {width: 100% !important;text-align: justify;}
